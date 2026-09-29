@@ -151,6 +151,7 @@ function WebsiteGradePage(){
 }
 function FAQArticle({title,eyebrow,sections}){return <Shell><article className="article"><div className="article-meta">{eyebrow}</div><h1>{title}</h1>{sections.map((s,i)=><section key={i}><h2>{s[0]}</h2><p>{s[1]}</p></section>)}<CTA label="Talk to an expert"/></article></Shell>}
 
+function DocsSection({id,title,children}){return <section className="docs-section" id={id}><h2>{title}</h2>{children}</section>}
 function CodeBlock({children}){return <pre className="docs-code"><code>{children}</code></pre>}
 function DocsEndpoint({id,method,path,title,description,children}){
  return <section className="docs-section docs-endpoint" id={id}>
