@@ -152,7 +152,42 @@ function WebsiteGradePage(){
 function FAQArticle({title,eyebrow,sections}){return <Shell><article className="article"><div className="article-meta">{eyebrow}</div><h1>{title}</h1>{sections.map((s,i)=><section key={i}><h2>{s[0]}</h2><p>{s[1]}</p></section>)}<CTA label="Talk to an expert"/></article></Shell>}
 
 function DocsSection({id,title,children}){return <section className="docs-section" id={id}><h2>{title}</h2>{children}</section>}
-function CodeBlock({children}){return <pre className="docs-code"><code>{children}</code></pre>}
+
+function parseCurlCommand(text){
+  const urlMatch=text.match(/curl\\s+(?:-X\\s+([A-Z]+)\\s+)?['"]([^'"]+)['"]/);
+  if(!urlMatch) return null;
+  const method=urlMatch[1]||'GET';
+  const url=urlMatch[2];
+  const headers=[...text.matchAll(/-H\\s+['"]([^'"]+)['"]/g)].map(m=>m[1]);
+  const bodyMatch=text.match(/-d\\s+['"]([\\s\\S]*)['"]\\s*$/);
+  let body=null;
+  if(bodyMatch){try{body=JSON.parse(bodyMatch[1])}catch{body=bodyMatch[1]}}
+  return {method,url,headers,body};
+}
+function jsFromCurl(c){
+  const headerLines=c.headers.map(h=>`    ${JSON.stringify(h.split(':')[0])}: ${JSON.stringify(h.slice(h.indexOf(':')+1).trim())}`).join(',\\n');
+  const body=c.body && typeof c.body==='object' ? `,\\n  body: JSON.stringify(${JSON.stringify(c.body,null,2)})` : '';
+  return `const response = await fetch(${JSON.stringify(c.url)}, {\\n  method: ${JSON.stringify(c.method)},\\n  headers: {\\n${headerLines}\\n  }${body}\\n});\\n\\nconst data = await response.json();`;
+}
+function pythonFromCurl(c){
+  const fn=c.method.toLowerCase()==='get'?'get':c.method.toLowerCase()==='post'?'post':c.method.toLowerCase();
+  const headerLines=c.headers.map(h=>`    ${JSON.stringify(h.split(':')[0])}: ${JSON.stringify(h.slice(h.indexOf(':')+1).trim())}`).join(',\\n');
+  const body=c.body && typeof c.body==='object' ? `,\\n    json=${JSON.stringify(c.body,null,2).replace(/^/gm,'    ')}` : '';
+  return `import requests\\n\\nresponse = requests.${fn}(\\n    ${JSON.stringify(c.url)},\\n    headers={\\n${headerLines}\\n    }${body}\\n)\\n\\ndata = response.json()`;
+}
+function CodeBlock({children}){
+  const text=String(children).trim();
+  const curl=parseCurlCommand(text);
+  const [language,setLanguage]=useState('curl');
+  if(!curl) return <pre className="docs-code"><code>{children}</code></pre>;
+  const snippets={curl:text,javascript:jsFromCurl(curl),python:pythonFromCurl(curl)};
+  return <div className="docs-code-wrap">
+    <div className="docs-code-tabs" role="tablist" aria-label="Code example language">
+      {['curl','javascript','python'].map(lang=><button key={lang} className={language===lang?'active':''} onClick={()=>setLanguage(lang)} role="tab" aria-selected={language===lang}>{lang==='curl'?'cURL':lang==='javascript'?'JavaScript':'Python'}</button>)}
+    </div>
+    <pre className="docs-code"><code>{snippets[language]}</code></pre>
+  </div>
+}
 function DocsEndpoint({id,method,path,title,description,children}){
  return <section className="docs-section docs-endpoint" id={id}>
   <div className="docs-endpoint-head"><div><span className="docs-method">{method}</span><code>{path}</code></div><a href={'#'+id}>#</a></div>
