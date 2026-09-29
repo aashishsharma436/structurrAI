@@ -150,6 +150,83 @@ function WebsiteGradePage(){
  return <Shell><PageHero eyebrow="Website Grade Content" title={<>Content your booking<br/><em>experience can trust.</em></>} text="Hotel content as shown on the original website — authoritative room content structured for modern booking experiences and AI systems."/><section className="section split"><div><div className="eyebrow">The content layer</div><h2>Go back to the<br/>source.</h2></div><div className="article-copy"><p>Supplier feeds optimize for price and availability, not content. Website Grade Content goes back to the property's own authoritative published information so descriptions are complete, images are real and room-specific, and amenities are normalized.</p><div className="bullet-grid large">{fields.map(x=><span key={x}>✓ {x}</span>)}</div></div></section><section className="metrics-section"><div className="metrics"><Metric value="4,25,000+" label="Hotels covered"/><Metric value="3,18,400+" label="Hotels with room-level content"/><Metric value="6,55,200+" label="Room-level images"/><Metric value="6 mo" label="Content refresh cycle"/></div></section><section className="section"><div className="section-intro"><span className="section-num">02</span><div><div className="eyebrow">Why it matters</div><h2>One infrastructure.<br/>Two outputs.</h2></div><p>Clean website-grade content enriches the booking page while also giving room mapping a reliable reference point for matching noisy supplier records.</p></div><div className="reason-list"><Reason n="01" title="Authoritative content" text="Structured from each property's own published information."/><Reason n="02" title="Room-level focus" text="Descriptions, images, sizes and bed configurations where travellers actually decide."/><Reason n="03" title="API-first delivery" text="REST API, JSON responses, sandbox access, examples and webhooks."/><Reason n="04" title="AI-ready inventory" text="Clean content makes inventory more legible to AI booking agents." /></div></section><section className="dark-cta"><div className="eyebrow">See the before and after</div><h2>Put better content<br/><em>inside your booking flow.</em></h2><CTA label="Book a live demo"/></section></Shell>
 }
 function FAQArticle({title,eyebrow,sections}){return <Shell><article className="article"><div className="article-meta">{eyebrow}</div><h1>{title}</h1>{sections.map((s,i)=><section key={i}><h2>{s[0]}</h2><p>{s[1]}</p></section>)}<CTA label="Talk to an expert"/></article></Shell>}
+
+function CodeBlock({children}){return <pre className="docs-code"><code>{children}</code></pre>}
+function DocsSection({id,title,children}){return <section className="docs-section" id={id}><h2>{title}</h2>{children}</section>}
+function Documentation(){
+ const nav=[['overview','Overview'],['quickstart','Quickstart'],['authentication','Authentication'],['api-structure','API structure'],['hotel-mapping','Hotel Mapping'],['room-mapping','Room Mapping'],['website-content','Website Grade Content'],['webhooks','Webhooks'],['errors','Errors & troubleshooting']];
+ return <Shell>
+  <section className="docs-hero">
+   <div className="eyebrow">API Documentation</div>
+   <h1>Build with<br/><em>StructurrAI APIs.</em></h1>
+   <p>Clean hotel and room data for travel platforms. Use StructurrAI to resolve supplier inventory, standardize room-level data, and enrich booking experiences with structured property content.</p>
+   <div className="docs-hero-meta"><span>REST API</span><span>JSON responses</span><span>API-key authentication</span></div>
+  </section>
+  <div className="docs-layout">
+   <aside className="docs-sidebar"><b>Documentation</b>{nav.map(([id,label])=><a key={id} href={'#'+id}>{label}</a>)}<button className="docs-sidebar-cta" onClick={()=>navigate('/api-access')}>Request API access ↗</button></aside>
+   <article className="docs-content">
+    <DocsSection id="overview" title="Overview">
+      <p>StructurrAI provides an AI-native data layer for travel platforms working with hotel inventory from multiple suppliers. The APIs are designed to turn inconsistent supplier records into structured, comparable data that can be used by search, pricing, merchandising, booking and downstream AI systems.</p>
+      <p>The platform brings together three connected capabilities: hotel mapping, room mapping, and Website Grade Content. Hotel mapping establishes the canonical property identity. Room mapping standardizes inventory inside that property. Website Grade Content adds authoritative property and room information from the hotel's own website.</p>
+      <div className="docs-callout"><strong>Before you begin</strong><p>API credentials are issued after an access request is reviewed. If you do not have an API key, use the <button onClick={()=>navigate('/api-access')}>API access request page</button>.</p></div>
+    </DocsSection>
+    <DocsSection id="quickstart" title="Quickstart">
+      <p>The quickest way to test the API is to send an authenticated request to the StructurrAI API and inspect the JSON response.</p>
+      <h3>1. Get your API key</h3><p>Request API access with your work email, company name and company website. Approved credentials are sent to the email address used in the request.</p>
+      <h3>2. Set the API key header</h3><p>Include your credential in the <code>api-key</code> request header.</p>
+      <CodeBlock>{`curl https://api.structurrai.com/v1/mappings \\\n  -H "api-key: YOUR_API_KEY"`}</CodeBlock>
+      <h3>3. Read the JSON response</h3><p>StructurrAI APIs return JSON so the response can be consumed directly by your application, data pipeline or integration service.</p>
+      <CodeBlock>{`const response = await fetch("https://api.structurrai.com/v1/mappings", {\n  headers: { "api-key": "YOUR_API_KEY" }\n});\n\nconst mappings = await response.json();\nconsole.log(mappings);`}</CodeBlock>
+    </DocsSection>
+    <DocsSection id="authentication" title="Authentication">
+      <p>Every authenticated request should include the API key in the <code>api-key</code> HTTP header.</p>
+      <CodeBlock>{`api-key: YOUR_API_KEY`}</CodeBlock>
+      <p>Keep your API key on your server or other trusted backend environment. Do not expose a production key in browser-side JavaScript, public repositories, client applications or other places where users can inspect it.</p>
+      <div className="docs-table"><div><b>Header</b><b>Required</b><b>Description</b></div><div><code>api-key</code><span>Yes</span><span>Your StructurrAI API credential.</span></div></div>
+    </DocsSection>
+    <DocsSection id="api-structure" title="API structure">
+      <p>The API is organized around the data layer your travel application needs. The public product surface includes hotel mapping, room mapping and structured website-grade content, with supporting data and synchronization capabilities available according to your account.</p>
+      <div className="docs-grid">
+       <div><span>01</span><h3>Hotel Mapping</h3><p>Resolve supplier hotel records into a consistent canonical hotel identity.</p></div>
+       <div><span>02</span><h3>Room Mapping</h3><p>Identify equivalent room types and standardize room-level attributes across suppliers.</p></div>
+       <div><span>03</span><h3>Website Grade Content</h3><p>Enrich hotel and room records with authoritative, structured content from the property's website.</p></div>
+       <div><span>04</span><h3>Synchronization</h3><p>Keep mapped and enriched data current as supplier and property information changes.</p></div>
+      </div>
+    </DocsSection>
+    <DocsSection id="hotel-mapping" title="Hotel Mapping">
+      <p>Hotel Mapping resolves multiple supplier records that refer to the same physical property and connects them to one canonical identity. This helps travel platforms avoid duplicate hotels, inconsistent names and fragmented inventory.</p>
+      <h3>What the mapping layer solves</h3>
+      <ul className="docs-list"><li>Different supplier names for the same property</li><li>Different supplier identifiers for the same hotel</li><li>Missing or inconsistent hotel information</li><li>Duplicate property records</li><li>Location and address inconsistencies</li><li>Continuous updates as supplier data changes</li></ul>
+      <h3>Example request</h3>
+      <CodeBlock>{`const response = await fetch("https://api.structurrai.com/v1/mappings", {\n  headers: { "api-key": "YOUR_API_KEY" }\n});\n\nconst mappings = await response.json();`}</CodeBlock>
+      <p>The exact fields returned by a mapping response depend on the endpoint and access scope enabled for your account. Use the credentials and endpoint contract provided with your API access for production integration.</p>
+    </DocsSection>
+    <DocsSection id="room-mapping" title="Room Mapping">
+      <p>Room Mapping works at the inventory level inside a hotel. It identifies whether different supplier room descriptions represent the same room and standardizes the information needed to compare those rooms consistently.</p>
+      <h3>Room-level signals</h3>
+      <ul className="docs-list"><li>Room type and category</li><li>Bed configuration</li><li>Room attributes and amenities</li><li>Views and other descriptive attributes</li><li>Inclusions and meal-plan information</li><li>Supplier-specific naming variations</li></ul>
+      <p>The goal is simple: the room a traveller selects should correspond to the inventory your booking system actually fulfills.</p>
+    </DocsSection>
+    <DocsSection id="website-content" title="Website Grade Content">
+      <p>Website Grade Content provides hotel and room content as presented by the property itself. It is designed to give travel platforms a more authoritative reference than abbreviated or inconsistent supplier descriptions.</p>
+      <div className="docs-grid two"><div><span>Content</span><h3>Property descriptions</h3><p>Professional, structured descriptions suitable for modern booking experiences.</p></div><div><span>Media</span><h3>Room-level images</h3><p>High-resolution images matched to the relevant property or room category.</p></div><div><span>Attributes</span><h3>Normalized amenities</h3><p>Consistent amenity information that can be used across your product experience.</p></div><div><span>Localization</span><h3>Multi-language support</h3><p>Structured content designed for travel platforms serving multiple markets.</p></div></div>
+      <h3>Refresh and synchronization</h3><p>Website Grade Content is refreshed on a six-month cycle, with webhook notifications available when content is updated. Coverage and refresh behavior can vary by property and account scope.</p>
+    </DocsSection>
+    <DocsSection id="webhooks" title="Webhooks">
+      <p>Webhooks allow your systems to react when mapping or content data changes instead of repeatedly checking for updates.</p>
+      <h3>Typical webhook flow</h3>
+      <ol className="docs-list numbered"><li>Your system registers or enables the relevant webhook subscription for your account.</li><li>StructurrAI processes a mapping or content update.</li><li>StructurrAI sends an event to your configured webhook destination.</li><li>Your service validates the event and updates the relevant records.</li></ol>
+      <p>Webhook event names, payload schemas, retry behavior and delivery configuration are provided with the webhook capability enabled for your account.</p>
+    </DocsSection>
+    <DocsSection id="errors" title="Errors & troubleshooting">
+      <div className="docs-table error-table"><div><b>Check</b><b>What to verify</b></div><div><strong>401 / authentication</strong><span>Confirm that the <code>api-key</code> header is present and that the key is valid.</span></div><div><strong>403 / access</strong><span>Confirm that the requested capability is enabled for your account.</span></div><div><strong>4xx / request</strong><span>Check the endpoint, request parameters and payload against the API contract supplied with your access.</span></div><div><strong>5xx / server</strong><span>Retry safely and contact StructurrAI support if the problem persists.</span></div></div>
+      <h3>Need help?</h3><p>For API access, integration questions or endpoint-specific documentation, contact the StructurrAI team through the <button className="inline-link" onClick={()=>navigate('/contact')}>contact page</button>.</p>
+    </DocsSection>
+    <div className="docs-bottom-cta"><div><span className="eyebrow">Ready to integrate?</span><h2>Build on clean hotel data.</h2><p>Request API access and get the credentials and integration material for your use case.</p></div><button className="primary-btn" onClick={()=>navigate('/api-access')}>Request API access ↗</button></div>
+   </article>
+  </div>
+ </Shell>
+}
 const faqPages={
 '/faqs/what-is-hotel-mapping':{title:'What is Hotel Mapping and Why Does It Matter for OTAs?',eyebrow:'Guide for OTAs',sections:[['What is hotel mapping?','Hotel mapping assigns a unique canonical identity to hotel records coming from different suppliers. The goal is accurate price comparison, clean inventory and one property representation.'],['Why does it matter?','Without mapping, the same hotel can appear multiple times with different names, addresses, identifiers and prices. This fragments inventory and confuses travellers.'],['What does StructurrAI do?','StructurrAI uses AI to resolve noisy supplier data, assign unique identifiers and keep the canonical record synchronized as supplier information changes.']]},
 '/faqs/what-should-you-look-for-in-a-hotel-booking-api':{title:'What Should You Look for in a Hotel Booking API?',eyebrow:'API Guide',sections:[['Reliable data first','A useful hotel API needs more than availability. It should expose consistent canonical identities, structured content and room-level data.'],['Developer experience','Look for clean REST endpoints, JSON responses, clear authentication, examples, documentation, sandbox access and webhooks.'],['StructurrAI APIs','The platform provides geography, hotel mapping, hotel static data, incremental hotel sync and room mapping endpoints behind an api-key header.']]},
@@ -167,7 +244,7 @@ function App(){
  if(path==='/contact') return <Contact/>;
  if(path==='/about') return <About/>;
  if(path==='/faq') return <FAQ/>;
- if(path==='/documentation') return <FAQArticle eyebrow="API Documentation" title="Build with StructurrAI APIs." sections={[['Authentication','Use your API key in the api-key request header. API responses are JSON and designed for straightforward integration.'],['Hotel mapping','Use mapping endpoints to resolve supplier hotel records into standardized identities and maintain a clean canonical inventory.'],['Room mapping','Room-level endpoints standardize room categories, attributes, signatures and supplier variations.'],['Integration','REST endpoints, JSON responses, code examples, sandbox access, batch queries and webhooks are designed for production integrations.']]}/>;
+ if(path==='/documentation') return <Documentation/>;
  if(path==='/privacy') return <FAQArticle eyebrow="Privacy" title="Privacy Policy" sections={[['Information we collect','When you request API access or contact StructurrAI, we may receive information such as your work email, company name, website and the details you choose to provide.'],['How information is used','Information is used to respond to requests, provide access to services, communicate about the platform and maintain the security and operation of the service.'],['Questions','For privacy questions or requests, contact the StructurrAI team through the contact page.']]}/>;
  if(path==='/terms') return <FAQArticle eyebrow="Legal" title="Terms of Service" sections={[['Using the service','Access to StructurrAI products and APIs is provided subject to the applicable account, API and service terms.'],['API access','Credentials are issued for approved users and should be kept secure. API usage is subject to the limits and conditions communicated with your access.'],['Contact','For questions about these terms or your account, contact the StructurrAI team.']]}/>;
  if(path.startsWith('/blog/')) return <Article slug={path}/>;
