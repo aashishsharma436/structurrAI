@@ -51,7 +51,7 @@ function Shell({children}){
     <footer className="footer">
       <div className="footer-top">
         <div><button className="brand footer-brand" onClick={()=>navigate('/')}><span className="brand-mark">S</span><span>Structurr<span>AI</span></span></button><p>AI-native infrastructure for hotel mapping, room mapping and website-grade content.</p></div>
-        <div className="footer-col"><b>Products</b><button onClick={()=>navigate('/hotel-mapping')}>Hotel Mapping</button><button onClick={()=>navigate('/room-mapping')}>Room Mapping</button><button onClick={()=>navigate('/website-grade-content')}>Website Grade Content</button></div>
+        <div className="footer-col"><b>Products</b><button onClick={()=>navigate('/hotel-mapping.html')}>Hotel Mapping</button><button onClick={()=>navigate('/room-mapping.html')}>Room Mapping</button><button onClick={()=>navigate('/website-grade-content.html')}>Website Grade Content</button></div>
         <div className="footer-col"><b>Company</b><button onClick={()=>navigate('/about')}>About</button><button onClick={()=>navigate('/resources')}>Resources</button><button onClick={()=>navigate('/contact')}>Contact</button></div>
         <div className="footer-col"><b>Developers</b><button onClick={()=>navigate('/api-access')}>API Access</button><button onClick={()=>navigate('/documentation')}>Documentation</button><button onClick={()=>navigate('/faq')}>FAQs</button></div>
       </div>
