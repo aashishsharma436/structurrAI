@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://aashishsharma436.github.io/structurrAI/
 
     steps:
       - name: Checkout
@@ -43,6 +43,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
@@ -53,18 +55,18 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify published site
-        env:
-          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+      - name: Verify exact project URL
         run: |
-          echo "Pages URL: $PAGES_URL"
-          for i in 1 2 3 4 5 6; do
-            code=$(curl -L -s -o /tmp/pages.html -w '%{http_code}' "$PAGES_URL")
+          URL="https://aashishsharma436.github.io/structurrAI/"
+          echo "Checking: $URL"
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            code=$(curl -L -s -o /tmp/pages.html -w '%{http_code}' "$URL")
             echo "Attempt $i: HTTP $code"
-            if [ "$code" = "200" ]; then
-              grep -qi "StructurrAI" /tmp/pages.html && exit 0
+            if [ "$code" = "200" ] && grep -qi "StructurrAI" /tmp/pages.html; then
+              echo "Project URL is live."
+              exit 0
             fi
             sleep 10
           done
-          echo "Published URL did not return the expected page."
+          echo "Project URL is still not returning the deployed site."
           exit 1
