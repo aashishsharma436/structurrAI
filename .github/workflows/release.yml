@@ -37,29 +37,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Preserve recent hashed assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -e
-          mkdir -p /tmp/previous-pages /tmp/previous-site
-          previous_runs=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=github-pages&per_page=20"             --jq '[.artifacts[] | select(.expired == false) | select(.workflow_run.id != '${{ github.run_id }}')] | sort_by(.created_at) | reverse | .[0:3][] | .workflow_run.id' || true)
-
-          for run_id in $previous_runs; do
-            echo "Trying previous Pages artifact from run $run_id"
-            rm -rf /tmp/previous-pages/* /tmp/previous-site/*
-            if gh run download "$run_id" -n github-pages -D /tmp/previous-pages >/dev/null 2>&1; then
-              artifact_tar=$(find /tmp/previous-pages -name artifact.tar -print -quit)
-              if [ -n "$artifact_tar" ]; then
-                tar -xf "$artifact_tar" -C /tmp/previous-site
-                if [ -d /tmp/previous-site/assets ]; then
-                  cp -an /tmp/previous-site/assets/. dist/assets/
-                  echo "Preserved assets from run $run_id"
-                fi
-              fi
-            fi
-          done
-
       - name: Create SPA fallback
         run: |
           cp dist/index.html dist/404.html
