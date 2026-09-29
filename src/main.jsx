@@ -72,8 +72,15 @@ function Home(){
     <h1>AI-Native Infrastructure for<br/><em>Hotel Mapping, Room Mapping & Website Grade Content</em></h1>
     <p className="hero-copy">Designed for OTAs, bedbanks, DMCs and travel platforms handling multi-supplier hotel inventory</p>
     <CTA label="Request Demo" secondary="Talk to an Expert"/>
-    <div className="trust-strip"><span>3M+ Hotels Mapped</span><i></i><span>99.9% Mapping Accuracy</span><i></i><span>99% Coverage</span></div>
+    <div className="hero-trust"><span>✓ Multi-supplier support</span><span>✓ Accurate & scalable</span><span>✓ Production ready</span></div>
+    <div className="hero-visual" aria-label="StructurrAI hotel data platform preview">
+      <div className="hero-hotel-card"><div className="hotel-photo"></div><div><b>Sunrise Resort</b><small>Bali, Indonesia</small><span>★★★★★</span></div></div>
+      <div className="hero-feature hotel"><strong>▦</strong><b>Hotel Mapping</b><small>Match same hotel across multiple suppliers</small></div>
+      <div className="hero-feature room"><strong>▰</strong><b>Room Mapping</b><small>Standardize room types across suppliers</small></div>
+      <div className="hero-feature content"><strong>▤</strong><b>Website Grade Content</b><small>Clean, structured and enriched content</small></div>
+    </div>
    </section>
+   <section className="supplier-strip"><div><small>WORKS WITH LEADING<br/>TRAVEL SUPPLIERS</small><b>↗ Expedia</b><b>Booking.com</b><b>agoda</b><b>Hotelbeds</b><span>and more...</span></div></section>
    <section className="visual-band"><div className="data-flow"><div className="flow-card"><small>SUPPLIER NETWORK</small><strong>Expedia · Trip.com</strong><span>Booking.com · WebBeds</span></div><div className="flow-arrow">→</div><div className="flow-card featured"><small>AI-POWERED PLATFORM</small><strong>StructurrAI</strong><span>Hotel Mapping · Room Mapping · Website Content APIs</span></div><div className="flow-arrow">→</div><div className="flow-card"><small>BOOKING PLATFORM</small><strong>OTAs · Bedbanks</strong><span>Travel SaaS · Corporate Travel</span></div></div></section>
    <section className="section">
     <div className="section-intro"><span className="section-num">01</span><div><div className="eyebrow">Trusted Infrastructure Layer</div><h2>For the travel<br/>industry.</h2></div><p>StructurrAI connects hotel suppliers with travel platforms through an AI-powered infrastructure layer built for multi-supplier inventory.</p></div>
