@@ -27,7 +27,9 @@ const faqs = [
  ['How Do Travel Platforms Manage Hotel Content at Scale?','A centralized data layer can resolve identities, standardize room attributes and continuously refresh authoritative property content.']
 ];
 
-function navigate(path){ window.history.pushState({},'',path); window.dispatchEvent(new PopStateEvent('popstate')); window.scrollTo({top:0,behavior:'instant'}); }
+const APP_BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+function navigate(path){ const target = path === '/' ? `${APP_BASE}/` : `${APP_BASE}${path}`; window.history.pushState({},'',target); window.dispatchEvent(new PopStateEvent('popstate')); window.scrollTo({top:0,behavior:'instant'}); }
+function normalizePath(pathname){ if(pathname===APP_BASE || pathname===`${APP_BASE}/`) return '/'; if(pathname.startsWith(`${APP_BASE}/`)) return pathname.slice(APP_BASE.length) || '/'; return pathname; }
 
 function Shell({children}){
   const [menu,setMenu]=useState(false);
@@ -149,8 +151,8 @@ const faqPages={
 };
 
 function App(){
- const [path,setPath]=useState(location.pathname);
- useEffect(()=>{const f=()=>setPath(location.pathname);addEventListener('popstate',f);return()=>removeEventListener('popstate',f)},[]);
+ const [path,setPath]=useState(normalizePath(location.pathname));
+ useEffect(()=>{const f=()=>setPath(normalizePath(location.pathname));addEventListener('popstate',f);return()=>removeEventListener('popstate',f)},[]);
  if(path==='/') return <Home/>;
  if(path==='/products') return <Products/>;
  if(path==='/resources') return <Resources/>;
