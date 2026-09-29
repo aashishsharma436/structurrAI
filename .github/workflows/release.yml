@@ -1,4 +1,4 @@
-name: Build, Release & Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -52,30 +52,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Calculate release version
-        id: version
-        shell: bash
-        run: |
-          git fetch --tags --force
-          latest=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
-
-          if [ -z "$latest" ]; then
-            next="v1.0.0"
-          else
-            version="${latest#v}"
-            IFS='.' read -r major minor patch <<< "$version"
-            patch=$((patch + 1))
-            next="v$major.$minor.$patch"
-          fi
-
-          echo "tag=$next" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --target "${{ github.sha }}" \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes
