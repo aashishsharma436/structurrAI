@@ -76,18 +76,24 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify root site
+      - name: Verify Pages URLs
         run: |
-          URL="https://aashishsharma436.github.io/"
-          echo "Checking: $URL"
-          for i in 1 2 3 4 5 6 7 8 9 10; do
+          for URL in "https://aashishsharma436.github.io/structurrAI/" "https://aashishsharma436.github.io/"; do
+            echo "Checking: $URL"
             code=$(curl -L -s -o /tmp/pages.html -w '%{http_code}' "$URL")
-            echo "Attempt $i: HTTP $code"
-            if [ "$code" = "200" ] && grep -qi "StructurrAI" /tmp/pages.html; then
-              echo "Root site is live."
-              exit 0
+            echo "HTTP $code"
+            head -c 500 /tmp/pages.html || true
+            echo
+          done
+
+          project="https://aashishsharma436.github.io/structurrAI/"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -L -s -o /tmp/project.html -w '%{http_code}' "$project")
+            echo "Project attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              grep -qi "StructurrAI" /tmp/project.html && exit 0
             fi
             sleep 10
           done
-          echo "Root site is not returning the deployed StructurrAI page."
+          echo "Project Pages URL did not return the deployed site."
           exit 1
