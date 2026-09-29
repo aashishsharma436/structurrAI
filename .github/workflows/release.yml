@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: https://aashishsharma436.github.io/
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
@@ -38,30 +38,7 @@ jobs:
 
       - name: Create SPA fallback
         run: |
-          cat > dist/404.html <<'EOF'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>Redirecting…</title>
-            </head>
-            <body>
-              <script>
-                const projectPrefix = '/structurrAI';
-                const path = window.location.pathname;
-                if (path === projectPrefix || path === projectPrefix + '/') {
-                  window.location.replace('/' + window.location.search + window.location.hash);
-                } else if (path.startsWith(projectPrefix + '/')) {
-                  const target = path.slice(projectPrefix.length) || '/';
-                  window.location.replace(target + window.location.search + window.location.hash);
-                } else {
-                  window.location.replace('/' + window.location.search + window.location.hash);
-                }
-              </script>
-            </body>
-          </html>
-          EOF
+          cp dist/index.html dist/404.html
           touch dist/.nojekyll
 
       - name: Setup Pages
@@ -76,24 +53,18 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify Pages URLs
+      - name: Verify project Pages site
         run: |
-          for URL in "https://aashishsharma436.github.io/structurrAI/" "https://aashishsharma436.github.io/"; do
-            echo "Checking: $URL"
-            code=$(curl -L -s -o /tmp/pages.html -w '%{http_code}' "$URL")
-            echo "HTTP $code"
-            head -c 500 /tmp/pages.html || true
-            echo
-          done
-
-          project="https://aashishsharma436.github.io/structurrAI/"
-          for i in 1 2 3 4 5 6; do
-            code=$(curl -L -s -o /tmp/project.html -w '%{http_code}' "$project")
-            echo "Project attempt $i: HTTP $code"
-            if [ "$code" = "200" ]; then
-              grep -qi "StructurrAI" /tmp/project.html && exit 0
+          URL="https://aashishsharma436.github.io/structurrAI/"
+          echo "Checking: $URL"
+          for i in 1 2 3 4 5 6 7 8; do
+            code=$(curl -L -s -o /tmp/project.html -w '%{http_code}' "$URL")
+            echo "Attempt $i: HTTP $code"
+            if [ "$code" = "200" ] && grep -qi "StructurrAI" /tmp/project.html; then
+              echo "Project Pages site is live."
+              exit 0
             fi
             sleep 10
           done
-          echo "Project Pages URL did not return the deployed site."
+          echo "Project Pages site did not return the deployed page."
           exit 1
