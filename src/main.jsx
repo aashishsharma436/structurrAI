@@ -152,77 +152,118 @@ function WebsiteGradePage(){
 function FAQArticle({title,eyebrow,sections}){return <Shell><article className="article"><div className="article-meta">{eyebrow}</div><h1>{title}</h1>{sections.map((s,i)=><section key={i}><h2>{s[0]}</h2><p>{s[1]}</p></section>)}<CTA label="Talk to an expert"/></article></Shell>}
 
 function CodeBlock({children}){return <pre className="docs-code"><code>{children}</code></pre>}
-function DocsSection({id,title,children}){return <section className="docs-section" id={id}><h2>{title}</h2>{children}</section>}
+function DocsEndpoint({id,method,path,title,description,children}){
+ return <section className="docs-section docs-endpoint" id={id}>
+  <div className="docs-endpoint-head"><div><span className="docs-method">{method}</span><code>{path}</code></div><a href={'#'+id}>#</a></div>
+  <h2>{title}</h2><p>{description}</p>{children}
+ </section>
+}
+function DocsField({name,type,children}){return <div className="docs-field"><div><code>{name}</code><span>{type}</span></div><p>{children}</p></div>}
 function Documentation(){
- const nav=[['overview','Overview'],['quickstart','Quickstart'],['authentication','Authentication'],['api-structure','API structure'],['hotel-mapping','Hotel Mapping'],['room-mapping','Room Mapping'],['website-content','Website Grade Content'],['webhooks','Webhooks'],['errors','Errors & troubleshooting']];
+ const nav=[
+  ['Overview',[['introduction','Introduction'],['getting-started','Getting Started']]],
+  ['Geography',[['countries','Fetch Countries'],['cities','Fetch Cities']]],
+  ['Hotel Mapping',[['hotel-search','Hotel Search by Cities'],['hotel-static','Hotel Static Data']]],
+  ['Hotel Sync',[['added-hotels','Fetch Added Hotels'],['updated-hotels','Fetch Updated Hotels'],['deleted-hotels','Fetch Deleted Hotels']]],
+  ['Room Mapping',[['room-mappings','Supplier Room Mappings'],['website-match','Website Room Match']]],
+  ['Support',[['support','Support']]]
+ ];
  return <Shell>
   <section className="docs-hero">
-   <div className="eyebrow">API Documentation</div>
-   <h1>Build with<br/><em>StructurrAI APIs.</em></h1>
-   <p>Clean hotel and room data for travel platforms. Use StructurrAI to resolve supplier inventory, standardize room-level data, and enrich booking experiences with structured property content.</p>
-   <div className="docs-hero-meta"><span>REST API</span><span>JSON responses</span><span>API-key authentication</span></div>
+   <div className="eyebrow">API Reference</div>
+   <h1>StructurrAI<br/><em>Documentation.</em></h1>
+   <p>Programmatic access to the StructurrAI canonical hotel and room mapping catalogue. Pull static inventory, sync incremental changes, and resolve supplier room descriptions to canonical room codes. One <code>api-key</code> header authenticates every call.</p>
+   <div className="docs-hero-meta"><span>REST API</span><span>JSON responses</span><span>API-key authentication</span><span>Postman ready</span></div>
   </section>
   <div className="docs-layout">
-   <aside className="docs-sidebar"><b>Documentation</b>{nav.map(([id,label])=><a key={id} href={'#'+id}>{label}</a>)}<button className="docs-sidebar-cta" onClick={()=>navigate('/api-access')}>Request API access ↗</button></aside>
+   <aside className="docs-sidebar"><b>Documentation</b>{nav.map(([group,items])=><div className="docs-nav-group" key={group}><strong>{group}</strong>{items.map(([id,label])=><a key={id} href={'#'+id}>{label}</a>)}</div>)}<button className="docs-sidebar-cta" onClick={()=>navigate('/api-access')}>Request API access ↗</button></aside>
    <article className="docs-content">
-    <DocsSection id="overview" title="Overview">
-      <p>StructurrAI provides an AI-native data layer for travel platforms working with hotel inventory from multiple suppliers. The APIs are designed to turn inconsistent supplier records into structured, comparable data that can be used by search, pricing, merchandising, booking and downstream AI systems.</p>
-      <p>The platform brings together three connected capabilities: hotel mapping, room mapping, and Website Grade Content. Hotel mapping establishes the canonical property identity. Room mapping standardizes inventory inside that property. Website Grade Content adds authoritative property and room information from the hotel's own website.</p>
-      <div className="docs-callout"><strong>Before you begin</strong><p>API credentials are issued after an access request is reviewed. If you do not have an API key, use the <button onClick={()=>navigate('/api-access')}>API access request page</button>.</p></div>
-    </DocsSection>
-    <DocsSection id="quickstart" title="Quickstart">
-      <p>The quickest way to test the API is to send an authenticated request to the StructurrAI API and inspect the JSON response.</p>
-      <h3>1. Get your API key</h3><p>Request API access with your work email, company name and company website. Approved credentials are sent to the email address used in the request.</p>
-      <h3>2. Set the API key header</h3><p>Include your credential in the <code>api-key</code> request header.</p>
-      <CodeBlock>{`curl https://api.structurrai.com/v1/mappings \\\n  -H "api-key: YOUR_API_KEY"`}</CodeBlock>
-      <h3>3. Read the JSON response</h3><p>StructurrAI APIs return JSON so the response can be consumed directly by your application, data pipeline or integration service.</p>
-      <CodeBlock>{`const response = await fetch("https://api.structurrai.com/v1/mappings", {\n  headers: { "api-key": "YOUR_API_KEY" }\n});\n\nconst mappings = await response.json();\nconsole.log(mappings);`}</CodeBlock>
-    </DocsSection>
-    <DocsSection id="authentication" title="Authentication">
-      <p>Every authenticated request should include the API key in the <code>api-key</code> HTTP header.</p>
-      <CodeBlock>{`api-key: YOUR_API_KEY`}</CodeBlock>
-      <p>Keep your API key on your server or other trusted backend environment. Do not expose a production key in browser-side JavaScript, public repositories, client applications or other places where users can inspect it.</p>
-      <div className="docs-table"><div><b>Header</b><b>Required</b><b>Description</b></div><div><code>api-key</code><span>Yes</span><span>Your StructurrAI API credential.</span></div></div>
-    </DocsSection>
-    <DocsSection id="api-structure" title="API structure">
-      <p>The API is organized around the data layer your travel application needs. The public product surface includes hotel mapping, room mapping and structured website-grade content, with supporting data and synchronization capabilities available according to your account.</p>
+    <DocsSection id="introduction" title="Introduction">
+      <p>StructurrAI provides programmatic access to a canonical hotel and room mapping catalogue. Use the API to retrieve standardized hotel inventory, synchronize changes, and resolve supplier room descriptions into canonical room codes.</p>
       <div className="docs-grid">
-       <div><span>01</span><h3>Hotel Mapping</h3><p>Resolve supplier hotel records into a consistent canonical hotel identity.</p></div>
-       <div><span>02</span><h3>Room Mapping</h3><p>Identify equivalent room types and standardize room-level attributes across suppliers.</p></div>
-       <div><span>03</span><h3>Website Grade Content</h3><p>Enrich hotel and room records with authoritative, structured content from the property's website.</p></div>
-       <div><span>04</span><h3>Synchronization</h3><p>Keep mapped and enriched data current as supplier and property information changes.</p></div>
+       <div><span>01</span><h3>Real-time mapping updates</h3><p>Keep your integration aligned with the latest mapping changes.</p></div>
+       <div><span>02</span><h3>Standardised hotels</h3><p>Access canonical hotel records across major supplier feeds.</p></div>
+       <div><span>03</span><h3>Incremental sync</h3><p>Pull added, updated and deleted hotels without re-fetching the full catalogue.</p></div>
+       <div><span>04</span><h3>Room mapping</h3><p>Resolve supplier room descriptions with structured, explainable extractions.</p></div>
       </div>
+      <h3>Endpoint groups</h3>
+      <ul className="docs-list"><li><strong>Geography</strong> — country and city codes.</li><li><strong>Hotel Mapping</strong> — canonical hotels and enriched static content.</li><li><strong>Hotel Sync</strong> — added, updated and deleted hotel changes.</li><li><strong>Room Mapping</strong> — supplier rooms to canonical room codes.</li></ul>
     </DocsSection>
-    <DocsSection id="hotel-mapping" title="Hotel Mapping">
-      <p>Hotel Mapping resolves multiple supplier records that refer to the same physical property and connects them to one canonical identity. This helps travel platforms avoid duplicate hotels, inconsistent names and fragmented inventory.</p>
-      <h3>What the mapping layer solves</h3>
-      <ul className="docs-list"><li>Different supplier names for the same property</li><li>Different supplier identifiers for the same hotel</li><li>Missing or inconsistent hotel information</li><li>Duplicate property records</li><li>Location and address inconsistencies</li><li>Continuous updates as supplier data changes</li></ul>
-      <h3>Example request</h3>
-      <CodeBlock>{`const response = await fetch("https://api.structurrai.com/v1/mappings", {\n  headers: { "api-key": "YOUR_API_KEY" }\n});\n\nconst mappings = await response.json();`}</CodeBlock>
-      <p>The exact fields returned by a mapping response depend on the endpoint and access scope enabled for your account. Use the credentials and endpoint contract provided with your API access for production integration.</p>
+
+    <DocsSection id="getting-started" title="Getting Started">
+      <p>From your API key to your first API call in three steps.</p>
+      <div className="docs-grid">
+       <div><span>01</span><h3>Receive your API key</h3><p>Issued by the StructurrAI team after onboarding.</p></div>
+       <div><span>02</span><h3>api-key header</h3><p>Send <code>api-key: &lt;your_api_key&gt;</code> on every request. Missing or invalid credentials return 401.</p></div>
+       <div><span>03</span><h3>Response envelope</h3><p>All responses wrap in <code>success</code>, <code>message</code>, <code>data</code> and <code>errors</code>. HTTP status is the source of truth.</p></div>
+      </div>
+      <h3>Base URL</h3><CodeBlock>{"https://api.structurrai.com"}</CodeBlock>
+      <h3>Auth header</h3><CodeBlock>{"api-key: &lt;your_api_key&gt;"}</CodeBlock>
     </DocsSection>
-    <DocsSection id="room-mapping" title="Room Mapping">
-      <p>Room Mapping works at the inventory level inside a hotel. It identifies whether different supplier room descriptions represent the same room and standardizes the information needed to compare those rooms consistently.</p>
-      <h3>Room-level signals</h3>
-      <ul className="docs-list"><li>Room type and category</li><li>Bed configuration</li><li>Room attributes and amenities</li><li>Views and other descriptive attributes</li><li>Inclusions and meal-plan information</li><li>Supplier-specific naming variations</li></ul>
-      <p>The goal is simple: the room a traveller selects should correspond to the inventory your booking system actually fulfills.</p>
+
+    <DocsEndpoint id="countries" method="GET" path="/api/v2/countries" title="Fetch Countries" description="Returns every country StructurrAI has hotels in, along with the StructurrAI country_code that every other endpoint expects.">
+      <h3>Request</h3><p>No parameters required.</p>
+      <h3>Response fields</h3>
+      <div className="docs-fields"><DocsField name="success" type="boolean">True when the call completed without error.</DocsField><DocsField name="message" type="string">Human-readable status text.</DocsField><DocsField name="data[]" type="array">One entry per supported country.</DocsField><DocsField name="data[].country_code" type="string">StructurrAI country code in SI-{'{'}ISO2{'}'} format, for example SI-IN.</DocsField><DocsField name="data[].country_name" type="string">Display name of the country in English.</DocsField><DocsField name="errors" type="array">Empty on success.</DocsField></div>
+      <h3>cURL</h3><CodeBlock>{"curl -X GET 'https://api.structurrai.com/api/v2/countries' \\\n  -H 'api-key: YOUR_API_KEY'"}</CodeBlock>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="cities" method="GET" path="/api/v2/cities" title="Fetch Cities" description="Returns every city StructurrAI maps within a country. Use this after /countries to build a destination picker or seed a city-by-city sync.">
+      <h3>Parameter</h3><div className="docs-fields"><DocsField name="country_id" type="required · string · query">StructurrAI country code in SI-{'{'}ISO2{'}'} format returned by /api/v2/countries. The endpoint also accepts country_code as an alias.</DocsField></div>
+      <h3>cURL</h3><CodeBlock>{"curl -X GET 'https://api.structurrai.com/api/v2/cities?country_id=YOUR_VALUE' \\\n  -H 'api-key: YOUR_API_KEY'"}</CodeBlock>
+      <h3>Response</h3><p>Returns <code>data.country_id</code>, <code>data.country_name</code>, and a <code>data.cities[]</code> array containing <code>city_code</code>, city, country code and country name.</p>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="hotel-search" method="POST" path="/api/v2/hotelsearch" title="Hotel Search by Cities" description="Returns every StructurrAI hotel in the requested cities, plus the supplier IDs each one is mapped to. One request can pull hotels across up to 20 cities.">
+      <h3>Parameter</h3><div className="docs-fields"><DocsField name="standardized_city_codes" type="required · array · body">A list of 1 to 20 StructurrAI city codes, such as STR-AE-0001 and STR-IN-0607. More than 20 returns 400.</DocsField></div>
+      <h3>Request</h3><CodeBlock>{"{\n  \"standardized_city_codes\": [\"STR-AE-0001\", \"STR-IN-0607\"]\n}"}</CodeBlock>
+      <h3>cURL</h3><CodeBlock>{"curl -X POST 'https://api.structurrai.com/api/v2/hotelsearch' \\\n  -H 'api-key: YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{ \"standardized_city_codes\": [\"STR-AE-0001\", \"STR-IN-0607\"] }'"}</CodeBlock>
+      <h3>Response fields</h3><div className="docs-fields"><DocsField name="standardized_hotel_id" type="string">Canonical StructurrAI hotel ID.</DocsField><DocsField name="standardized_hotel_name" type="string">Cleaned canonical hotel name.</DocsField><DocsField name="standardized_address" type="string">Cleaned canonical hotel address.</DocsField><DocsField name="latitude / longitude" type="number">Geocoded coordinates.</DocsField><DocsField name="provider_details[]" type="array">Supplier mappings with supplier name, ID, raw hotel name, address and supplier geography.</DocsField></div>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="hotel-static" method="POST" path="/api/v2/hotelstaticdata" title="Hotel Static Data" description="Returns enriched static content for every StructurrAI hotel in the requested cities.">
+      <p>Static content includes hotel name and address, geo coordinates, description, hero and gallery images, star rating, review rating, check-in/check-out times, nearby attractions, amenities and facilities.</p>
+      <h3>Parameter</h3><div className="docs-fields"><DocsField name="standardized_city_codes" type="required · array · body">A list of 1 to 20 StructurrAI city codes. Use the same codes accepted by /hotelsearch.</DocsField></div>
+      <h3>cURL</h3><CodeBlock>{"curl -X POST 'https://api.structurrai.com/api/v2/hotelstaticdata' \\\n  -H 'api-key: YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{ \"standardized_city_codes\": [\"STR-IN-0607\"] }'"}</CodeBlock>
+      <h3>Key response fields</h3><div className="docs-fields"><DocsField name="description" type="string">Marketing description for a property-detail page.</DocsField><DocsField name="hero_image_url / image_urls" type="string[]">Primary and gallery image URLs.</DocsField><DocsField name="star_rating / review_rating" type="number / object">Official star rating and aggregated guest review rating.</DocsField><DocsField name="check_in_time / check_out_time" type="string">HH:mm property times when published.</DocsField><DocsField name="nearby_attractions" type="array">Nearby points of interest with name, distance_km and category.</DocsField><DocsField name="amenities / facilities" type="array">In-room/guest amenities and property-level facilities.</DocsField></div>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="added-hotels" method="GET" path="/api/v1/addedhotels" title="Fetch Added Hotels" description="Returns hotels newly mapped on or after a given date, along with each linked supplier hotel. Use it for incremental sync instead of re-fetching the full catalogue.">
+      <div className="docs-fields"><DocsField name="last_updated_date" type="required · YYYY-MM-DD · query">Inclusive lower bound for the date filter.</DocsField><DocsField name="page" type="optional · integer · query">Page number, starting at 1.</DocsField><DocsField name="offset" type="optional · integer · query">Page size.</DocsField></div>
+      <CodeBlock>{"curl -X GET 'https://api.structurrai.com/api/v1/addedhotels?last_updated_date=YOUR_VALUE&page=YOUR_VALUE&offset=YOUR_VALUE' \\\n  -H 'api-key: YOUR_API_KEY'"}</CodeBlock>
+      <p>The response contains <code>data.last_updated_date</code>, <code>data.mapped_hotels[]</code> and supplier <code>provider_details[]</code>.</p>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="updated-hotels" method="GET" path="/api/v1/updatedhotels" title="Fetch Updated Hotels" description="Returns hotels whose canonical attributes changed on or after a given date. Pair it with added and deleted hotel syncs to keep a local catalogue current.">
+      <div className="docs-fields"><DocsField name="last_updated_date" type="required · YYYY-MM-DD · query">Inclusive lower bound for the date filter.</DocsField></div>
+      <CodeBlock>{"curl -X GET 'https://api.structurrai.com/api/v1/updatedhotels?last_updated_date=YOUR_VALUE' \\\n  -H 'api-key: YOUR_API_KEY'"}</CodeBlock>
+      <p>The <code>mapped_hotels[]</code> shape matches the added-hotels endpoint. Updated values represent the current canonical state.</p>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="deleted-hotels" method="GET" path="/api/v1/deletedhotels" title="Fetch Deleted Hotels" description="Returns the IDs of hotels that StructurrAI deactivated or removed on or after a given date. The payload is intentionally minimal.">
+      <div className="docs-fields"><DocsField name="last_updated_date" type="required · YYYY-MM-DD · query">Inclusive lower bound for the date filter.</DocsField><DocsField name="page" type="optional · integer · query">Page number, starting at 1.</DocsField><DocsField name="offset" type="optional · integer · query">Page size.</DocsField></div>
+      <CodeBlock>{"curl -X GET 'https://api.structurrai.com/api/v1/deletedhotels?last_updated_date=YOUR_VALUE&page=YOUR_VALUE&offset=YOUR_VALUE' \\\n  -H 'api-key: YOUR_API_KEY'"}</CodeBlock>
+      <p>The wire response uses <code>standarized_hotel_id</code> exactly as documented by the API.</p>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="room-mappings" method="POST" path="/api/v2/room-mappings" title="Supplier Room Mappings" description="Resolve supplier room descriptions to StructurrAI canonical room codes. The API extracts structured attributes and groups equivalent supplier rooms into one canonical room.">
+      <div className="docs-callout"><strong>Important</strong><p>A single request must contain rooms belonging to one unique hotel. Send a separate request per hotel. Mixing rooms from multiple hotels is not supported.</p></div>
+      <h3>Request fields</h3><div className="docs-fields"><DocsField name="rooms" type="required · array · body">At least 1 room. Maximum 20 when sync=true and 100 when sync=false.</DocsField><DocsField name="rooms[].name" type="required · string">Exact supplier room description. Pass it verbatim; no manual cleanup is required.</DocsField><DocsField name="rooms[].hotel_id" type="optional · string">StructurrAI hotel ID, carried through when supplied.</DocsField><DocsField name="rooms[].supplier_name" type="optional · string">Supplier identifier such as HotelBeds, TBO or Agoda.</DocsField><DocsField name="rooms[].index" type="required · integer">Sequential 1-based index with no gaps or duplicates.</DocsField><DocsField name="sync" type="optional · boolean">True processes inline and is capped at 20. False is the default background mode and is capped at 100.</DocsField></div>
+      <h3>Request body</h3><CodeBlock>{"{\n  \"rooms\": [\n    { \"name\": \"Deluxe Room, 1 King Bed (City View)\", \"index\": 1, \"hotel_id\": \"9054312\", \"supplier_name\": \"tbo\" },\n    { \"name\": \"Deluxe Room, 1 King Bed (City View),NonSmoking\", \"index\": 2, \"hotel_id\": \"9054312\", \"supplier_name\": \"tbo\" }\n  ],\n  \"sync\": true\n}"}</CodeBlock>
+      <h3>Response fields</h3><div className="docs-fields"><DocsField name="structurrai_room_code" type="string">Stable canonical room ID.</DocsField><DocsField name="room_name / type_of_accomodation" type="string">Cleaned room name and unit type such as Room, Suite, Villa or Apartment.</DocsField><DocsField name="room_category / bed_type / view_type" type="string">Category, bed configuration and view.</DocsField><DocsField name="bed_count / bedroom_count" type="string / integer">Bed and bedroom counts.</DocsField><DocsField name="boolean attributes" type="object">Family, balcony, terrace, pool, spa, jacuzzi, sauna, kitchenette, bathtub, bar, living room, lounge, floor, smoking and extra-bed flags.</DocsField><DocsField name="room_description / room_size_* / image_urls" type="mixed">Description, square-metre/square-foot sizes and canonical room images when available.</DocsField><DocsField name="rooms[]" type="array">Input rooms clustered into the canonical group, preserving index and supplied attribution.</DocsField><DocsField name="fine_tuned_status" type="string">Whether the base extractor was sufficient or a fine-tuned model was triggered.</DocsField></div>
+      <h3>cURL</h3><CodeBlock>{"curl -X POST 'https://api.structurrai.com/api/v2/room-mappings' \\\n  -H 'api-key: YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{ \"rooms\": [{ \"name\": \"Deluxe Room, 1 King Bed (City View)\", \"index\": 1, \"hotel_id\": \"9054312\", \"supplier_name\": \"tbo\" }], \"sync\": true }'"}</CodeBlock>
+    </DocsEndpoint>
+
+    <DocsEndpoint id="website-match" method="POST" path="/api/v2/room-mappings/website-match" title="Website Room Match" description="Match supplier rooms against the actual rooms published on the hotel's own website, then group them under canonical StructurrAI room codes.">
+      <div className="docs-callout"><strong>Important</strong><p>The request and response contract is the same as /api/v2/room-mappings, but <code>hotel_id</code> is required on every room because it identifies the hotel website used as the reference. A single call must contain one unique hotel.</p></div>
+      <h3>cURL</h3><CodeBlock>{"curl -X POST 'https://api.structurrai.com/api/v2/room-mappings/website-match' \\\n  -H 'api-key: YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{ \"rooms\": [{ \"name\": \"Deluxe Room, 1 King Bed (City View)\", \"index\": 1, \"hotel_id\": \"9054312\", \"supplier_name\": \"tbo\" }], \"sync\": true }'"}</CodeBlock>
+      <p>The response returns one entry per canonical room group with structured room attributes and the input rooms matched into that group.</p>
+    </DocsEndpoint>
+
+    <DocsSection id="support" title="Need help?">
+      <p>Reach the integrations team at <strong>vasu.goenka@structurrai.com</strong> for API access, schema questions, or onboarding support.</p>
+      <div className="docs-bottom-cta"><div><span className="eyebrow">Ready to integrate?</span><h2>Build on clean hotel data.</h2><p>Request API access and get the credentials and integration material for your use case.</p></div><button className="primary-btn" onClick={()=>navigate('/api-access')}>Request API access ↗</button></div>
     </DocsSection>
-    <DocsSection id="website-content" title="Website Grade Content">
-      <p>Website Grade Content provides hotel and room content as presented by the property itself. It is designed to give travel platforms a more authoritative reference than abbreviated or inconsistent supplier descriptions.</p>
-      <div className="docs-grid two"><div><span>Content</span><h3>Property descriptions</h3><p>Professional, structured descriptions suitable for modern booking experiences.</p></div><div><span>Media</span><h3>Room-level images</h3><p>High-resolution images matched to the relevant property or room category.</p></div><div><span>Attributes</span><h3>Normalized amenities</h3><p>Consistent amenity information that can be used across your product experience.</p></div><div><span>Localization</span><h3>Multi-language support</h3><p>Structured content designed for travel platforms serving multiple markets.</p></div></div>
-      <h3>Refresh and synchronization</h3><p>Website Grade Content is refreshed on a six-month cycle, with webhook notifications available when content is updated. Coverage and refresh behavior can vary by property and account scope.</p>
-    </DocsSection>
-    <DocsSection id="webhooks" title="Webhooks">
-      <p>Webhooks allow your systems to react when mapping or content data changes instead of repeatedly checking for updates.</p>
-      <h3>Typical webhook flow</h3>
-      <ol className="docs-list numbered"><li>Your system registers or enables the relevant webhook subscription for your account.</li><li>StructurrAI processes a mapping or content update.</li><li>StructurrAI sends an event to your configured webhook destination.</li><li>Your service validates the event and updates the relevant records.</li></ol>
-      <p>Webhook event names, payload schemas, retry behavior and delivery configuration are provided with the webhook capability enabled for your account.</p>
-    </DocsSection>
-    <DocsSection id="errors" title="Errors & troubleshooting">
-      <div className="docs-table error-table"><div><b>Check</b><b>What to verify</b></div><div><strong>401 / authentication</strong><span>Confirm that the <code>api-key</code> header is present and that the key is valid.</span></div><div><strong>403 / access</strong><span>Confirm that the requested capability is enabled for your account.</span></div><div><strong>4xx / request</strong><span>Check the endpoint, request parameters and payload against the API contract supplied with your access.</span></div><div><strong>5xx / server</strong><span>Retry safely and contact StructurrAI support if the problem persists.</span></div></div>
-      <h3>Need help?</h3><p>For API access, integration questions or endpoint-specific documentation, contact the StructurrAI team through the <button className="inline-link" onClick={()=>navigate('/contact')}>contact page</button>.</p>
-    </DocsSection>
-    <div className="docs-bottom-cta"><div><span className="eyebrow">Ready to integrate?</span><h2>Build on clean hotel data.</h2><p>Request API access and get the credentials and integration material for your use case.</p></div><button className="primary-btn" onClick={()=>navigate('/api-access')}>Request API access ↗</button></div>
    </article>
   </div>
  </Shell>
