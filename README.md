@@ -17,3 +17,6 @@ npm run dev
 
 ## Build
 npm run build
+
+## GitHub Pages
+The production site is deployed at https://aashishsharma436.github.io/structurrAI/.
