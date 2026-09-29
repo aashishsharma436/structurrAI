@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pages: write
   id-token: write
@@ -107,3 +107,41 @@ jobs:
           done
 
           echo "Project Pages HTML and referenced assets are live."
+
+
+  release:
+    name: Create GitHub Release
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Calculate release version
+        id: version
+        shell: bash
+        run: |
+          git fetch --tags --force
+          latest=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+
+          if [ -z "$latest" ]; then
+            next="v1.0.0"
+          else
+            version="${latest#v}"
+            IFS='.' read -r major minor patch <<< "$version"
+            patch=$((patch + 1))
+            next="v$major.$minor.$patch"
+          fi
+
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \\
+            --target "${{ github.sha }}" \\
+            --title "${{ steps.version.outputs.tag }}" \\
+            --generate-notes
